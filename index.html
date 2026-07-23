@@ -329,6 +329,51 @@
   }
 
   /* ===== Cómo pagar ===== */
+  .seccion-toggle{
+    display:flex; align-items:center; justify-content:space-between; gap:20px; width:100%;
+    background:rgba(255,255,255,0.03); border:1px solid var(--linea); border-radius:18px;
+    padding:24px 28px; cursor:pointer; text-align:left;
+    transition:border-color .18s ease, background .18s ease, transform .15s ease, box-shadow .18s ease;
+  }
+  .seccion-toggle:hover{
+    border-color:rgba(232,181,75,0.55); background:rgba(255,255,255,0.055);
+    transform:translateY(-2px); box-shadow:0 12px 28px -14px rgba(0,0,0,0.5);
+  }
+  .seccion-toggle.abierta{
+    border-color:var(--oro); background:rgba(232,181,75,0.07);
+    border-bottom-left-radius:0; border-bottom-right-radius:0;
+  }
+  .seccion-toggle-texto{display:flex; flex-direction:column; gap:6px;}
+  .seccion-toggle-texto strong{
+    color:var(--hueso); font-family:'Fraunces',serif; font-weight:700;
+    font-size:clamp(1.4rem,2.6vw,1.9rem); line-height:1.1;
+  }
+  .seccion-toggle-texto small{
+    color:var(--hueso-tenue); font-family:'Manrope',sans-serif; font-weight:600;
+    font-size:0.85rem; letter-spacing:0.02em;
+  }
+  .seccion-icono{
+    flex:none; width:42px; height:42px; border-radius:50%;
+    border:1.5px solid rgba(232,181,75,0.5); background:rgba(232,181,75,0.08);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--oro); font-size:1.5rem; font-family:'Manrope',sans-serif; font-weight:700;
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1), background .18s ease, color .18s ease;
+  }
+  .seccion-toggle:hover .seccion-icono{border-color:var(--oro);}
+  .seccion-toggle.abierta .seccion-icono{
+    transform:rotate(135deg); background:var(--oro); color:var(--noche-profunda);
+  }
+  .seccion-contenido{
+    display:none; margin-top:0; padding:26px 28px 28px;
+    background:rgba(255,255,255,0.02); border:1px solid var(--linea); border-top:none;
+    border-bottom-left-radius:18px; border-bottom-right-radius:18px;
+  }
+  .seccion-contenido.abierta{display:block; animation:desplegar .22s ease;}
+  @keyframes desplegar{
+    from{opacity:0; transform:translateY(-6px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
   .pago-intro{color:var(--hueso-tenue); margin-bottom:6px;}
   .pago-intro a{color:var(--verde); font-weight:700; text-decoration:underline;}
   .pago-concepto{
@@ -570,7 +615,12 @@
 </section>
 
 <section class="seccion" id="pagar">
-  <h2 class="titulo-seccion">¿Cómo pagar?</h2>
+  <button class="seccion-toggle" id="pagar-toggle">
+    <span class="seccion-toggle-texto"><strong>¿Dónde pagar?</strong><small>Toca para ver las cuentas de transferencia y OXXO</small></span>
+    <span class="seccion-icono">+</span>
+  </button>
+
+  <div class="seccion-contenido" id="pagar-contenido">
   <p class="pago-intro">Debes realizar el pago por alguna de estas opciones y enviar tu comprobante al <a href="#" id="link-whatsapp-pago">WhatsApp de confirmación</a>.</p>
   <p class="pago-concepto">Pon tu nombre completo en el concepto de pago</p>
 
@@ -626,10 +676,16 @@
     </div>
     <p class="aviso-saturada">Si alguna cuenta aparece saturada, por favor usa otra cuenta.</p>
   </div>
+  </div>
 </section>
 
 <section class="seccion" id="verificar">
-  <h2 class="titulo-seccion">Verificar mis boletos</h2>
+  <button class="seccion-toggle" id="verificar-toggle">
+    <span class="seccion-toggle-texto"><strong>Verificar mis boletos</strong><small>Toca para buscar tu apartado con tu WhatsApp</small></span>
+    <span class="seccion-icono">+</span>
+  </button>
+
+  <div class="seccion-contenido" id="verificar-contenido">
   <p class="subtitulo-seccion">Pon el WhatsApp con el que apartaste y te decimos cómo va tu pedido.</p>
 
   <div class="verificar-caja">
@@ -638,10 +694,16 @@
   </div>
 
   <div class="verificar-resultado" id="verificar-resultado"></div>
+  </div>
 </section>
 
 <section class="seccion" id="preguntas">
-  <h2 class="titulo-seccion">¿Tienes dudas?</h2>
+  <button class="seccion-toggle" id="preguntas-toggle">
+    <span class="seccion-toggle-texto"><strong>¿Tienes dudas?</strong><small>Toca para ver las preguntas frecuentes</small></span>
+    <span class="seccion-icono">+</span>
+  </button>
+
+  <div class="seccion-contenido" id="preguntas-contenido">
   <p class="subtitulo-seccion">Toca cualquier pregunta para ver la respuesta.</p>
 
   <div class="faq-lista" id="faq-lista">
@@ -709,6 +771,7 @@
   <div class="cta-faq">
     <p>¿No encontraste tu respuesta?</p>
     <a href="#" id="link-whatsapp-contacto">Contáctanos por WhatsApp</a>
+  </div>
   </div>
 </section>
 
@@ -1078,6 +1141,18 @@
   document.getElementById('link-facebook-vivo').href = 'https://www.facebook.com/sorteoseldiademisuerte';
   document.getElementById('link-whatsapp-contacto').href = 'https://wa.me/52TUNUMERO';
   document.getElementById('link-whatsapp-pago').href = 'https://wa.me/52TUNUMERO';
+
+  // Botones "¿Dónde pagar?" / "Verificar mis boletos" / "¿Tienes dudas?" — abren/cierran su sección
+  [
+    ['pagar-toggle', 'pagar-contenido'],
+    ['verificar-toggle', 'verificar-contenido'],
+    ['preguntas-toggle', 'preguntas-contenido']
+  ].forEach(([idToggle, idContenido]) => {
+    document.getElementById(idToggle).addEventListener('click', () => {
+      document.getElementById(idToggle).classList.toggle('abierta');
+      document.getElementById(idContenido).classList.toggle('abierta');
+    });
+  });
 
   // Pestañas de "Cómo pagar"
   document.querySelectorAll('.pago-tab').forEach(tab => {
