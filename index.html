@@ -977,13 +977,32 @@
   cargarBoletos();
 
   // ===== Verificar mis boletos =====
+  let intervaloVerificar = null;
+
   function formatearTiempoRestante(fechaISO){
     if (!fechaISO) return null;
     const diferencia = new Date(fechaISO).getTime() - Date.now();
     if (diferencia <= 0) return { vencido: true, texto: 'Vencido' };
     const horas = Math.floor(diferencia / 3600000);
     const minutos = Math.floor((diferencia % 3600000) / 60000);
-    return { vencido: false, texto: horas > 0 ? `${horas}h ${minutos}m` : `${minutos} min` };
+    const segundos = Math.floor((diferencia % 60000) / 1000);
+    const texto = horas > 0
+      ? `${horas}h ${minutos}m ${segundos}s`
+      : `${minutos}m ${segundos}s`;
+    return { vencido: false, texto };
+  }
+
+  function refrescarContadoresEnVivo(){
+    document.querySelectorAll('[data-expira]').forEach(el => {
+      const r = formatearTiempoRestante(el.dataset.expira);
+      el.textContent = r.texto;
+      el.classList.toggle('vencido', r.vencido);
+    });
+    document.querySelectorAll('[data-ventana]').forEach(el => {
+      const r = formatearTiempoRestante(el.dataset.ventana);
+      el.textContent = r.texto;
+      el.classList.toggle('vencido', r.vencido);
+    });
   }
 
   async function verificarBoletos(){
@@ -1006,6 +1025,9 @@
     btn.textContent = textoOriginal;
     btn.disabled = false;
 
+    // Si ya había un contador en vivo corriendo de una búsqueda anterior, lo detenemos
+    if (intervaloVerificar){ clearInterval(intervaloVerificar); intervaloVerificar = null; }
+
     if (error){
       console.error('Error al verificar:', error);
       cont.innerHTML = '<p class="verificar-vacio">Hubo un problema buscando tus boletos. Intenta de nuevo.</p>';
@@ -1024,11 +1046,9 @@
 
       let tiemposHTML = '';
       if (t.estado === 'apartado'){
-        const expira = formatearTiempoRestante(t.expira_en);
-        const ventana = formatearTiempoRestante(t.ventana_secundaria_hasta);
         tiemposHTML = `<div class="tiempos">
-          <div>Tu apartado se vence en<strong class="${expira.vencido ? 'vencido' : ''}">${expira.texto}</strong></div>
-          <div>Premio secundario, te quedan<strong class="${ventana.vencido ? 'vencido' : ''}">${ventana.texto}</strong></div>
+          <div>Tu apartado se vence en<strong data-expira="${t.expira_en}"></strong></div>
+          <div>Premio secundario, te quedan<strong data-ventana="${t.ventana_secundaria_hasta}"></strong></div>
         </div>`;
       }
 
@@ -1038,6 +1058,10 @@
         ${tiemposHTML}
       </div>`;
     }).join('');
+
+    // Arranca el contador en vivo: se actualiza solo cada segundo, sin volver a consultar la base de datos
+    refrescarContadoresEnVivo();
+    intervaloVerificar = setInterval(refrescarContadoresEnVivo, 1000);
   }
 
   document.getElementById('verificar-btn').addEventListener('click', verificarBoletos);
