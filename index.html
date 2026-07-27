@@ -1008,7 +1008,13 @@
       return;
     }
 
-    alert(`¡Listo, ${nombre}! Apartaste ${numeros.length} boleto(s). En cuanto conectemos WhatsApp, aquí llegará tu mensaje con las instrucciones de pago.`);
+    alert(`¡Listo, ${nombre}! Apartaste ${numeros.length} boleto(s). En unos segundos te llegará un WhatsApp con las instrucciones de pago.`);
+
+    // Manda el WhatsApp con los datos de pago (no bloqueamos el flujo si falla)
+    db.functions.invoke('notificar-reserva', {
+      body: { nombre, whatsapp, numeros }
+    }).catch(err => console.error('Error notificando por WhatsApp:', err));
+
     seleccionados.clear();
     await cargarBoletos();
     actualizarCarrito();
