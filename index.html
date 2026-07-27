@@ -84,6 +84,15 @@
     color:var(--oro-suave); border:1px solid rgba(232,181,75,0.35);
     padding:6px 14px; border-radius:999px; margin-bottom:22px;
   }
+  .dot-activo{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    background:var(--verde); box-shadow:0 0 6px 1px rgba(62,207,142,0.7);
+    animation:parpadeo 1.4s ease-in-out infinite;
+  }
+  @keyframes parpadeo{
+    0%, 100%{opacity:1; transform:scale(1);}
+    50%{opacity:0.35; transform:scale(0.85);}
+  }
   .hero h1{font-size:clamp(2.4rem, 5vw, 4.2rem); line-height:1.02; margin-bottom:20px;}
   .hero h1 em{font-style:normal; color:var(--oro);}
   .hero p.sub{font-size:1.08rem; color:var(--hueso-tenue); max-width:46ch; margin-bottom:34px;}
@@ -132,8 +141,19 @@
     .premio-valor{font-size:1.35rem;}
   }
   .premio-linea{border-top:2px dashed var(--linea); margin:18px 0;}
-  .premio-datos{display:flex; justify-content:space-between; font-size:0.88rem; color:var(--hueso-tenue);}
-  .premio-datos strong{color:var(--hueso); display:block; font-family:'Space Mono',monospace; font-size:1rem; margin-top:2px;}
+  .premio-datos{display:flex; justify-content:center; gap:28px; font-size:0.88rem; color:var(--hueso-tenue); text-align:center;}
+  .premio-datos .dato-col{display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;}
+  .premio-datos .dato-label{display:flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap;}
+  .premio-datos strong{color:var(--hueso); display:block; font-family:'Space Mono',monospace; font-size:1rem; margin-top:6px;}
+  @media (max-width: 700px){
+    .premio-datos{gap:14px;}
+    .premio-datos strong{font-size:0.85rem;}
+  }
+  .premio-nota-sorteo{
+    margin-top:16px; padding-top:14px; border-top:1px solid var(--linea);
+    font-size:0.78rem; color:var(--hueso-tenue); text-align:center; line-height:1.5;
+  }
+  .premio-nota-sorteo strong{color:var(--oro-suave); font-family:inherit; font-size:inherit; display:inline; margin-top:0;}
   .mini-bandera{
     display:inline-flex; width:20px; height:13px; border-radius:2px; overflow:hidden;
     vertical-align:middle; margin-right:5px; box-shadow:0 0 0 1px rgba(255,255,255,0.2);
@@ -530,7 +550,7 @@
 
 <section class="hero">
   <div>
-    <div class="eyebrow">● Sorteo activo · 2,000 boletos</div>
+    <div class="eyebrow"><span class="dot-activo"></span>Sorteo activo · <span id="contador-eyebrow">2,000</span> boletos</div>
     <h1>Tu suerte puede tener <em>placas nuevas</em> este año.</h1>
     <p class="sub">Elige tus números, aparta con nombre y WhatsApp, y paga con calma: tienes 24 horas para confirmar — y si pagas en las primeras 2, también entras a los premios secundarios.</p>
     <div class="hero-ctas">
@@ -546,10 +566,10 @@
     <div class="premio-valor">Valor $150,000 MXN</div>
     <div class="premio-linea"></div>
     <div class="premio-datos">
-      <div>Boletos totales<strong>2,000</strong></div>
-      <div>Precio unitario<strong>$100</strong></div>
-      <div>Fecha del sorteo<strong id="fecha-sorteo"><span class="mini-bandera"><span></span><span></span><span></span></span> 16 de septiembre 2026</strong></div>
+      <div class="dato-col"><span class="dato-label">Precio unitario</span><strong>$100</strong></div>
+      <div class="dato-col"><span class="dato-label"><span class="mini-bandera"><span></span><span></span><span></span></span>Fecha del sorteo</span><strong id="fecha-sorteo">15 de septiembre 2026</strong></div>
     </div>
+    <div class="premio-nota-sorteo">Basado en el <strong>Gran Sorteo Especial de la Lotería Nacional</strong> · 15 de septiembre de 2026, 20:00 hrs.</div>
   </div>
 </section>
 
@@ -717,6 +737,13 @@
   <div class="faq-lista" id="faq-lista">
 
     <div class="faq-item">
+      <button class="faq-pregunta">¿En qué sorteo oficial se basa la fecha y el número ganador?<span class="icono">+</span></button>
+      <div class="faq-respuesta"><div class="faq-respuesta-int">
+        Nos basamos en el <strong>Gran Sorteo Especial de la Lotería Nacional</strong>, programado para el <strong>15 de septiembre de 2026 a las 20:00 horas</strong>. El número ganador de nuestro sorteo corresponde a los últimos dígitos del primer premio de ese sorteo oficial, publicado por la <a href="https://www.loterianacional.gob.mx/" target="_blank" rel="noopener">Lotería Nacional</a>.
+      </div></div>
+    </div>
+
+    <div class="faq-item">
       <button class="faq-pregunta">¿Dónde se publican los ganadores y dónde se ve la transmisión en vivo?<span class="icono">+</span></button>
       <div class="faq-respuesta"><div class="faq-respuesta-int">
         En nuestra página oficial puedes encontrar todos y cada uno de nuestros sorteos anteriores, así como las transmisiones en vivo con Lotería Nacional y las entregas de premios a los ganadores.
@@ -839,7 +866,17 @@
     const { data, error } = await db.from('boletos').select('numero, estado');
     if (error){ console.error('Error cargando boletos:', error); return; }
     data.forEach(row => { boletos[row.numero] = row.estado; });
+    actualizarContadorVendidos();
     renderGrid();
+  }
+
+  function actualizarContadorVendidos(){
+    const vendidos = Object.values(boletos).filter(e => e !== 'disponible').length;
+    const texto = `${vendidos.toLocaleString('es-MX')} de ${TOTAL_BOLETOS.toLocaleString('es-MX')}`;
+    const eyebrowEl = document.getElementById('contador-eyebrow');
+    const cardEl = document.getElementById('contador-vendidos');
+    if (eyebrowEl) eyebrowEl.textContent = texto;
+    if (cardEl) cardEl.textContent = texto;
   }
 
   const seleccionados = new Set();
@@ -1168,8 +1205,8 @@
 
   // TODO: reemplaza este enlace por el de tu página de Facebook cuando la tengas lista.
   document.getElementById('link-facebook-vivo').href = 'https://www.facebook.com/sorteoseldiademisuerte';
-  document.getElementById('link-whatsapp-contacto').href = 'https://wa.me/52TUNUMERO';
-  document.getElementById('link-whatsapp-pago').href = 'https://wa.me/52TUNUMERO';
+  document.getElementById('link-whatsapp-contacto').href = 'https://wa.me/5213314229756';
+  document.getElementById('link-whatsapp-pago').href = 'https://wa.me/5213314229756';
 
   // Botones "¿Dónde pagar?" / "Verificar mis boletos" / "¿Tienes dudas?" — abren/cierran su sección
   [
