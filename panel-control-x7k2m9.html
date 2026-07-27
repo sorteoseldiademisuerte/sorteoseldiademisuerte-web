@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel de Control — Sorteos El Día de mi Suerte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul-noche: #0B1330;
+    --azul-noche-2: #111A3D;
+    --dorado: #E8B54B;
+    --vino: #8A2846;
+    --verde: #3ECF8E;
+    --rojo: #E5484D;
+    --texto: #EDEEF5;
+    --texto-tenue: #8B92B0;
+    --borde: rgba(232, 181, 75, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--azul-noche);
+    color: var(--texto);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ---------- Pantalla de acceso ---------- */
+  #pantalla-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .caja-login {
+    background: var(--azul-noche-2);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    padding: 40px 36px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .caja-login .sello {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    border: 2px solid var(--dorado);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--dorado);
+  }
+
+  .caja-login h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .caja-login p {
+    color: var(--texto-tenue);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .caja-login input {
+    width: 100%;
+    background: var(--azul-noche);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--texto);
+    font-size: 15px;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .caja-login input:focus {
+    outline: none;
+    border-color: var(--dorado);
+  }
+
+  .caja-login button {
+    width: 100%;
+    background: var(--dorado);
+    color: var(--azul-noche);
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .caja-login button:hover { opacity: 0.9; }
+  .caja-login button:disabled { opacity: 0.5; cursor: wait; }
+
+  #error-login {
+    color: var(--rojo);
+    font-size: 13px;
+    margin-top: 12px;
+    min-height: 16px;
+  }
+
+  /* ---------- Panel principal ---------- */
+  #panel { display: none; }
+
+  header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--borde);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 600;
+  }
+
+  header h1 span { color: var(--dorado); }
+
+  .estado-vivo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--texto-tenue);
+  }
+
+  .punto-pulso {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--verde);
+    box-shadow: 0 0 0 0 rgba(62, 207, 142, 0.6);
+    animation: pulso 2s infinite;
+  }
+
+  @keyframes pulso {
+    0% { box-shadow: 0 0 0 0 rgba(62, 207, 142, 0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(62, 207, 142, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(62, 207, 142, 0); }
+  }
+
+  main {
+    padding: 24px 28px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Contadores */
+  .contadores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .tarjeta-contador {
+    background: var(--azul-noche-2);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+
+  .tarjeta-contador .numero {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .tarjeta-contador .etiqueta {
+    color: var(--texto-tenue);
+    font-size: 12.5px;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .tc-disponible .numero { color: var(--texto); }
+  .tc-apartado .numero { color: var(--dorado); }
+  .tc-vendido .numero { color: var(--verde); }
+  .tc-premio .numero { color: var(--vino); }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  .tab {
+    background: none;
+    border: none;
+    color: var(--texto-tenue);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .tab.activo {
+    color: var(--dorado);
+    border-bottom-color: var(--dorado);
+  }
+
+  /* Cuadrícula de boletos */
+  #vista-cuadricula { display: none; }
+  #vista-cuadricula.activo { display: block; }
+
+  .leyenda {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .leyenda-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--texto-tenue);
+  }
+
+  .leyenda-punto {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .cuadricula {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+    gap: 5px;
+  }
+
+  .celda {
+    aspect-ratio: 1;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: default;
+    position: relative;
+  }
+
+  .celda-disponible { background: rgba(255,255,255,0.05); color: var(--texto-tenue); }
+  .celda-apartado { background: rgba(232, 181, 75, 0.22); color: var(--dorado); border: 1px solid rgba(232,181,75,0.4); }
+  .celda-vendido { background: rgba(62, 207, 142, 0.22); color: var(--verde); border: 1px solid rgba(62,207,142,0.4); }
+  .celda-premio::after {
+    content: '';
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--vino);
+  }
+
+  .celda[title] { cursor: help; }
+
+  /* Tabla */
+  #vista-tabla { display: none; }
+  #vista-tabla.activo { display: block; }
+
+  .filtros-tabla {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filtros-tabla input, .filtros-tabla select {
+    background: var(--azul-noche-2);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--texto);
+    font-size: 13.5px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .filtros-tabla input { flex: 1; min-width: 200px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  thead th {
+    text-align: left;
+    color: var(--texto-tenue);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  tbody td {
+    padding: 11px 12px;
+    border-bottom: 1px solid rgba(232, 181, 75, 0.06);
+  }
+
+  tbody tr:hover { background: rgba(232, 181, 75, 0.04); }
+
+  .num-mono { font-family: 'JetBrains Mono', monospace; }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+
+  .pill-apartado { background: rgba(232,181,75,0.15); color: var(--dorado); }
+  .pill-vendido { background: rgba(62,207,142,0.15); color: var(--verde); }
+
+  .badge-premio {
+    color: var(--vino);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  #vacio-tabla {
+    text-align: center;
+    color: var(--texto-tenue);
+    padding: 40px 0;
+    font-size: 14px;
+  }
+
+  @media (max-width: 640px) {
+    header, main { padding-left: 16px; padding-right: 16px; }
+    .cuadricula { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<div id="pantalla-login">
+  <div class="caja-login">
+    <div class="sello">🔒</div>
+    <h1>Panel de Control</h1>
+    <p>Acceso privado — Sorteos El Día de mi Suerte</p>
+    <input type="password" id="input-password" placeholder="Contraseña" autocomplete="off">
+    <button id="btn-entrar">Entrar</button>
+    <div id="error-login"></div>
+  </div>
+</div>
+
+<div id="panel">
+  <header>
+    <h1>Panel de Control <span>· El Día de mi Suerte</span></h1>
+    <div class="estado-vivo">
+      <span class="punto-pulso"></span>
+      <span id="texto-actualizacion">Actualizando en vivo</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="contadores">
+      <div class="tarjeta-contador tc-disponible">
+        <div class="numero" id="c-disponible">—</div>
+        <div class="etiqueta">Disponibles</div>
+      </div>
+      <div class="tarjeta-contador tc-apartado">
+        <div class="numero" id="c-apartado">—</div>
+        <div class="etiqueta">Apartados</div>
+      </div>
+      <div class="tarjeta-contador tc-vendido">
+        <div class="numero" id="c-vendido">—</div>
+        <div class="etiqueta">Vendidos</div>
+      </div>
+      <div class="tarjeta-contador tc-premio">
+        <div class="numero" id="c-premio">—</div>
+        <div class="etiqueta">Califican a premio secundario</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab activo" data-vista="cuadricula">Cuadrícula</button>
+      <button class="tab" data-vista="tabla">Lista de apartados y vendidos</button>
+    </div>
+
+    <div id="vista-cuadricula" class="activo">
+      <div class="leyenda">
+        <div class="leyenda-item"><span class="leyenda-punto" style="background:rgba(255,255,255,0.15)"></span>Disponible</div>
+        <div class="leyenda-item"><span class="leyenda-punto" style="background:var(--dorado)"></span>Apartado</div>
+        <div class="leyenda-item"><span class="leyenda-punto" style="background:var(--verde)"></span>Vendido</div>
+        <div class="leyenda-item"><span class="leyenda-punto" style="background:var(--vino)"></span>Punto = califica a premio secundario</div>
+      </div>
+      <div class="cuadricula" id="cuadricula"></div>
+    </div>
+
+    <div id="vista-tabla">
+      <div class="filtros-tabla">
+        <input type="text" id="buscar" placeholder="Buscar por número, nombre o WhatsApp...">
+        <select id="filtro-estado">
+          <option value="">Todos los estados</option>
+          <option value="apartado">Solo apartados</option>
+          <option value="vendido">Solo vendidos</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Boleto</th>
+            <th>Estado</th>
+            <th>Nombre</th>
+            <th>WhatsApp</th>
+            <th>Apartado</th>
+            <th>Premio 2º/3er</th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo-tabla"></tbody>
+      </table>
+      <div id="vacio-tabla" style="display:none;">No hay boletos que coincidan con la búsqueda.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // AJUSTAR: URL de tu función admin-datos en Supabase
+  const URL_FUNCION = 'https://atxdcvpbqmsfjghmscpr.supabase.co/functions/v1/admin-datos';
+
+  let passwordActual = sessionStorage.getItem('admin_pw') || '';
+  let boletosCache = [];
+  let intervaloActualizacion = null;
+
+  const pantallaLogin = document.getElementById('pantalla-login');
+  const panel = document.getElementById('panel');
+  const inputPassword = document.getElementById('input-password');
+  const btnEntrar = document.getElementById('btn-entrar');
+  const errorLogin = document.getElementById('error-login');
+
+  async function pedirDatos(password) {
+    const res = await fetch(URL_FUNCION, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || 'Error desconocido');
+    }
+    return data;
+  }
+
+  function formatearFecha(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleString('es-MX', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderResumen(resumen) {
+    document.getElementById('c-disponible').textContent = resumen.disponible;
+    document.getElementById('c-apartado').textContent = resumen.apartado;
+    document.getElementById('c-vendido').textContent = resumen.vendido;
+    document.getElementById('c-premio').textContent = resumen.elegibles_premio_secundario;
+  }
+
+  function renderCuadricula(boletos) {
+    const cont = document.getElementById('cuadricula');
+    cont.innerHTML = boletos.map(b => {
+      const clasePremio = b.elegible_premio_secundario ? ' celda-premio' : '';
+      const titulo = b.estado !== 'disponible'
+        ? `${b.nombre_completo || 'Sin nombre'} — ${b.whatsapp || ''}`
+        : 'Disponible';
+      return `<div class="celda celda-${b.estado}${clasePremio}" title="${titulo}">${String(b.numero).padStart(4, '0')}</div>`;
+    }).join('');
+  }
+
+  function renderTabla(boletos) {
+    const filtroTexto = document.getElementById('buscar').value.trim().toLowerCase();
+    const filtroEstado = document.getElementById('filtro-estado').value;
+
+    let filtrados = boletos.filter(b => b.estado !== 'disponible');
+
+    if (filtroEstado) {
+      filtrados = filtrados.filter(b => b.estado === filtroEstado);
+    }
+
+    if (filtroTexto) {
+      filtrados = filtrados.filter(b =>
+        String(b.numero).includes(filtroTexto) ||
+        (b.nombre_completo || '').toLowerCase().includes(filtroTexto) ||
+        (b.whatsapp || '').includes(filtroTexto)
+      );
+    }
+
+    const cuerpo = document.getElementById('cuerpo-tabla');
+    const vacio = document.getElementById('vacio-tabla');
+
+    if (filtrados.length === 0) {
+      cuerpo.innerHTML = '';
+      vacio.style.display = 'block';
+      return;
+    }
+    vacio.style.display = 'none';
+
+    cuerpo.innerHTML = filtrados.map(b => `
+      <tr>
+        <td class="num-mono">${String(b.numero).padStart(4, '0')}</td>
+        <td><span class="pill pill-${b.estado}">${b.estado}</span></td>
+        <td>${b.nombre_completo || '—'}</td>
+        <td class="num-mono">${b.whatsapp || '—'}</td>
+        <td>${formatearFecha(b.apartado_en)}</td>
+        <td>${b.elegible_premio_secundario ? '<span class="badge-premio">✓ Califica</span>' : '—'}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderTodo(data) {
+    boletosCache = data.boletos;
+    renderResumen(data.resumen);
+    renderCuadricula(data.boletos);
+    renderTabla(data.boletos);
+    document.getElementById('texto-actualizacion').textContent =
+      'Actualizado ' + new Date().toLocaleTimeString('es-MX');
+  }
+
+  async function actualizar() {
+    try {
+      const data = await pedirDatos(passwordActual);
+      renderTodo(data);
+    } catch (err) {
+      console.error('Error actualizando:', err);
+    }
+  }
+
+  async function intentarEntrar() {
+    const password = inputPassword.value.trim();
+    if (!password) return;
+
+    btnEntrar.disabled = true;
+    errorLogin.textContent = '';
+
+    try {
+      const data = await pedirDatos(password);
+      passwordActual = password;
+      sessionStorage.setItem('admin_pw', password);
+      pantallaLogin.style.display = 'none';
+      panel.style.display = 'block';
+      renderTodo(data);
+      intervaloActualizacion = setInterval(actualizar, 15000);
+    } catch (err) {
+      errorLogin.textContent = 'Contraseña incorrecta. Intenta de nuevo.';
+    } finally {
+      btnEntrar.disabled = false;
+    }
+  }
+
+  btnEntrar.addEventListener('click', intentarEntrar);
+  inputPassword.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') intentarEntrar();
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+      tab.classList.add('activo');
+      document.getElementById('vista-cuadricula').classList.remove('activo');
+      document.getElementById('vista-tabla').classList.remove('activo');
+      document.getElementById('vista-' + tab.dataset.vista).classList.add('activo');
+    });
+  });
+
+  document.getElementById('buscar').addEventListener('input', () => renderTabla(boletosCache));
+  document.getElementById('filtro-estado').addEventListener('change', () => renderTabla(boletosCache));
+
+  // Si ya había una sesión activa en este navegador, entra automático
+  if (passwordActual) {
+    pedirDatos(passwordActual).then(data => {
+      pantallaLogin.style.display = 'none';
+      panel.style.display = 'block';
+      renderTodo(data);
+      intervaloActualizacion = setInterval(actualizar, 15000);
+    }).catch(() => {
+      sessionStorage.removeItem('admin_pw');
+    });
+  }
+</script>
+
+</body>
+</html>
