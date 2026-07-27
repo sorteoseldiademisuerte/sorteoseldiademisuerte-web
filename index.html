@@ -1041,6 +1041,21 @@
   });
 
   document.getElementById('girar-btn').addEventListener('click', () => {
+    // Si ya hay boletos seleccionados de antes (de un giro previo o del grid manual),
+    // preguntamos explícitamente qué quiere hacer la persona para que nunca se
+    // acumulen boletos sin darse cuenta.
+    if (seleccionados.size > 0){
+      const yaTienes = seleccionados.size;
+      const quiereAgregar = confirm(
+        `Ya tienes ${yaTienes} boleto${yaTienes === 1 ? '' : 's'} en tu carrito.\n\n` +
+        `Aceptar = agregar ${cantidadTombola} boleto(s) más de esta tirada al carrito.\n` +
+        `Cancelar = vaciar el carrito y empezar de cero con esta tirada.`
+      );
+      if (!quiereAgregar){
+        seleccionados.clear();
+      }
+    }
+
     const disponibles = Object.keys(boletos)
       .map(Number)
       .filter(n => boletos[n] === 'disponible' && !seleccionados.has(n));
