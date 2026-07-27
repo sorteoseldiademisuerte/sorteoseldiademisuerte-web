@@ -113,12 +113,12 @@
   .premio-card::before{left:-13px;}
   .premio-card::after{right:-13px;}
   .premio-card{box-shadow:0 0 0 2px rgba(232,181,75,0.4), 0 25px 60px -15px rgba(232,181,75,0.35); border-color:rgba(232,181,75,0.5);}
-  .premio-label{font-family:'Space Mono',monospace; font-size:1.15rem; font-weight:800; color:var(--oro); letter-spacing:0.14em; text-transform:uppercase; text-shadow:0 0 18px rgba(232,181,75,0.5);}
-  .premio-label-fila{display:flex; align-items:center; gap:14px; margin-bottom:6px;}
-  .premio-label-fila img{height:52px; width:auto; opacity:1; filter:drop-shadow(0 6px 14px rgba(232,181,75,0.4));}
+  .premio-label{font-family:'Space Mono',monospace; font-size:1.55rem; font-weight:800; color:var(--oro); letter-spacing:0.06em; text-transform:uppercase; text-shadow:0 0 18px rgba(232,181,75,0.5); white-space:nowrap;}
+  .premio-label-fila{display:flex; align-items:center; gap:12px; margin-bottom:6px; flex-wrap:nowrap; overflow:visible;}
+  .premio-label-fila img{height:44px; width:auto; flex-shrink:0; opacity:1; filter:drop-shadow(0 6px 14px rgba(232,181,75,0.4));}
   @media (max-width: 700px){
-    .premio-label{font-size:0.95rem;}
-    .premio-label-fila img{height:42px;}
+    .premio-label{font-size:1.05rem;}
+    .premio-label-fila img{height:34px;}
   }
 
   footer{padding:5vh 6vw; text-align:center; color:var(--hueso-tenue); font-size:0.85rem; border-top:1px solid var(--linea);}
@@ -217,8 +217,12 @@
   }
   .premio-secundario-card img{max-width:100%; max-height:260px; width:auto; margin-bottom:18px; filter:drop-shadow(0 16px 20px rgba(0,0,0,0.5));}
   .lugar-badge{
-    font-family:'Space Mono',monospace; font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase;
-    color:var(--oro-suave); border:1px solid rgba(232,181,75,0.35); padding:5px 14px; border-radius:999px; margin-bottom:12px;
+    font-family:'Space Mono',monospace; font-size:1.15rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--oro); background:rgba(232,181,75,0.12); border:2px solid rgba(232,181,75,0.55);
+    padding:8px 22px; border-radius:999px; margin-bottom:16px; text-shadow:0 0 16px rgba(232,181,75,0.45);
+  }
+  @media (max-width: 700px){
+    .lugar-badge{font-size:0.95rem; padding:6px 16px;}
   }
   .premio-secundario-card h3{font-family:'Fraunces',serif; font-size:1.3rem; margin-bottom:8px;}
   .premio-secundario-card p{color:var(--hueso-tenue); font-size:0.9rem;}
