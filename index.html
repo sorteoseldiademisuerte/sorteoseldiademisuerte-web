@@ -48,7 +48,7 @@
 
   /* ===== Header ===== */
   header{
-    position:sticky; top:0; z-index:50;
+    position:relative;
     display:flex; align-items:center; justify-content:space-between;
     padding:18px 6vw;
     background:rgba(6,10,28,0.75);
@@ -72,6 +72,13 @@
   }
   .cta-header-secundario:hover{transform:translateY(-1px); background:rgba(232,181,75,0.1);}
   .cta-header-grupo{display:flex; gap:10px; flex-wrap:wrap;}
+  @media (max-width: 700px){
+    header{flex-direction:column; align-items:center; text-align:center; gap:14px; padding:16px 5vw;}
+    .marca{flex-direction:column; gap:6px; font-size:1rem;}
+    .marca img{height:64px;}
+    .cta-header-grupo{width:100%; justify-content:center;}
+    .cta-header, .cta-header-secundario{flex:1; text-align:center;}
+  }
 
   /* ===== Hero ===== */
   .hero{
